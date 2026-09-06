@@ -166,10 +166,12 @@ struct AboutView: View {
     private var creditsCard: some View {
         Card(title: "Standing on other people's work", subtitle: "None of this starts from nothing") {
             VStack(alignment: .leading, spacing: 7) {
-                credit("Heimdall", "Benjamin Dobell, Glass Echidna — the original Odin-protocol implementation.")
+                credit("Bundled", "The flash engine, lz4 and libusb ship inside this app — nothing to install.")
+                credit("Heimdall", "Benjamin Dobell, Glass Echidna — the original Odin-protocol implementation. MIT.")
                 credit("Maintained fork", "Henrik Grimler, who kept it alive for years.")
                 credit("Apple Silicon fix", "aljosasavic/heimdall-apple-silicon — clears the stalled USB pipe that made large partitions fail on macOS.")
                 credit("Firmware protocol", "Samloader and Bifrost, for working out how Samsung's servers actually talk.")
+                credit("libusb / lz4", "LGPL-2.1 and BSD-2-Clause respectively, bundled unmodified.")
 
                 Divider().padding(.vertical, 2)
 

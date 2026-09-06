@@ -96,11 +96,36 @@ partition mapping doesn't depend on CLI output formatting.
 
 ## Requirements
 
-- Apple Silicon Mac, macOS 13 or later
-- [heimdall-apple-silicon](https://github.com/aljosasavic/heimdall-apple-silicon) at
-  `/opt/homebrew/bin/heimdall` — the stall fix in that fork is what makes large
-  partitions like `SUPER` complete
-- `lz4` (`brew install lz4`) — Samsung ships partition images lz4-compressed
+**An Apple Silicon Mac running macOS 13 or later. That's it.**
+
+Download the app, drag it to Applications, open it. The flash engine, the lz4 decompressor
+and libusb all ship inside the bundle — there is nothing to install, no Homebrew, no
+Terminal, no compiling.
+
+<details>
+<summary>What's bundled, and why</summary>
+
+Valkyrie drives two command line tools. Rather than asking you to build them, they travel
+inside `Valkyrie.app/Contents/Resources/bin`:
+
+| Component | Licence | Purpose |
+|---|---|---|
+| `heimdall` | MIT | Speaks Samsung's Odin protocol over USB |
+| `libusb-1.0.0.dylib` | LGPL-2.1 | USB transport the engine links against |
+| `lz4` | BSD-2-Clause | Samsung ships partition images lz4-compressed |
+
+The engine is relinked at build time to load libusb from beside itself instead of from
+Homebrew. If you'd rather supply your own, anything on your `PATH` at
+`/opt/homebrew/bin/heimdall` is ignored in favour of the bundled copy — delete the bundled
+one to fall back.
+
+</details>
+
+### First launch
+
+The build is ad-hoc signed rather than notarised (notarisation needs a paid Apple
+Developer account), so macOS will say it "cannot be opened because the developer cannot be
+verified". **Right-click the app → Open → Open.** You only need to do this once.
 
 ## Building
 

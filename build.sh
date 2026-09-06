@@ -18,6 +18,16 @@ rm -rf "$APP"
 mkdir -p "$CONTENTS/MacOS" "$CONTENTS/Resources"
 cp .build/release/Valkyrie "$CONTENTS/MacOS/Valkyrie"
 
+# Ship the flash engine, the lz4 decompressor and libusb inside the bundle so the
+# app needs nothing installed. Without this, a user would have to clone a repo,
+# install four Homebrew packages and compile C++ before flashing anything.
+if [ -d Vendor ]; then
+  mkdir -p "$CONTENTS/Resources/bin"
+  cp Vendor/heimdall Vendor/lz4 Vendor/libusb-1.0.0.dylib "$CONTENTS/Resources/bin/"
+  chmod +x "$CONTENTS/Resources/bin/heimdall" "$CONTENTS/Resources/bin/lz4"
+  echo "    bundled: heimdall, lz4, libusb"
+fi
+
 if [ -f Resources/Valkyrie.icns ]; then
   cp Resources/Valkyrie.icns "$CONTENTS/Resources/Valkyrie.icns"
   ICON_ENTRY="<key>CFBundleIconFile</key><string>Valkyrie</string>"
@@ -46,6 +56,10 @@ cat > "$CONTENTS/Info.plist" <<PLIST
 PLIST
 
 # Ad-hoc signature so macOS will launch it locally without a developer certificate.
+# The nested binaries are signed first — signing the bundle alone leaves them invalid.
+for nested in "$CONTENTS/Resources/bin/"*; do
+  [ -e "$nested" ] && codesign --force --sign - "$nested" 2>/dev/null
+done
 codesign --force --sign - "$APP" 2>/dev/null || echo "    (ad-hoc signing skipped)"
 
 echo ">>> Built $(pwd)/$APP"

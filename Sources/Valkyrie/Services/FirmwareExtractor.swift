@@ -32,7 +32,7 @@ enum ExtractionError: LocalizedError {
         case .noArchivesSelected:
             return "No firmware files selected."
         case .lz4Missing:
-            return "lz4 isn't installed. Samsung ships partition images lz4-compressed — install it with `brew install lz4`."
+            return "The lz4 decompressor is missing from this build. Reinstall Valkyrie, or install it with `brew install lz4`."
         case .commandFailed(let tool, let file, let output):
             let detail = output.trimmingCharacters(in: .whitespacesAndNewlines)
             let tail = detail.split(separator: "\n").suffix(3).joined(separator: "\n")
@@ -59,6 +59,7 @@ final class FirmwareExtractor {
     ]
 
     static func locateLZ4() -> String? {
+        if let bundled = BundledTools.path(for: "lz4") { return bundled }
         return lz4Candidates.first { FileManager.default.isExecutableFile(atPath: $0) }
     }
 

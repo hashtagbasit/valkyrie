@@ -53,7 +53,14 @@ final class FlashController: ObservableObject {
         "/usr/bin/heimdall",
     ]
 
+    /// Prefers the copy shipped inside the app.
+    ///
+    /// Requiring people to clone a repo, install four Homebrew packages and compile C++
+    /// before they can flash a phone rules out most of the people this is for. The engine
+    /// and its one library travel with the bundle instead; the system paths stay as a
+    /// fallback so a development build still works without assembling the app.
     static func locateHeimdall() -> String? {
+        if let bundled = BundledTools.path(for: "heimdall") { return bundled }
         return heimdallCandidates.first { FileManager.default.isExecutableFile(atPath: $0) }
     }
 
