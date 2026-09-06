@@ -1,0 +1,5 @@
+.build/
+.swiftpm/
+Valkyrie.app/
+*.xcuserstate
+.DS_Store

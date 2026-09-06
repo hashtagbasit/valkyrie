@@ -1,0 +1,40 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: swift --version
+
+      - name: Build app bundle
+        run: ./build.sh
+
+      - name: Verify bundle
+        run: |
+          test -x Valkyrie.app/Contents/MacOS/Valkyrie
+          plutil -lint Valkyrie.app/Contents/Info.plist
+
+      - name: Package
+        run: ditto -c -k --keepParent Valkyrie.app Valkyrie.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Valkyrie-app
+          path: Valkyrie.zip
+
+      - name: Attach to release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Valkyrie.zip
