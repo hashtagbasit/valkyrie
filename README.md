@@ -132,7 +132,8 @@ verified". **Right-click the app → Open → Open.** You only need to do this o
 Needs only the Xcode **Command Line Tools** — no full Xcode install:
 
 ```bash
-./build.sh          # produces Valkyrie.app
+./build.sh            # produces Valkyrie.app
+./build.sh package    # and a release archive
 open Valkyrie.app
 ```
 

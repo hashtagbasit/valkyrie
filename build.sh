@@ -55,6 +55,11 @@ cat > "$CONTENTS/Info.plist" <<PLIST
 </plist>
 PLIST
 
+# Strip extended attributes before signing. They travel into a zip as AppleDouble
+# "._" files, which some unzip tools materialise and codesign then counts as
+# unsealed additions — the app looks tampered with on the user's machine.
+xattr -cr "$APP" 2>/dev/null || true
+
 # Ad-hoc signature so macOS will launch it locally without a developer certificate.
 # The nested binaries are signed first — signing the bundle alone leaves them invalid.
 for nested in "$CONTENTS/Resources/bin/"*; do
@@ -63,3 +68,16 @@ done
 codesign --force --sign - "$APP" 2>/dev/null || echo "    (ad-hoc signing skipped)"
 
 echo ">>> Built $(pwd)/$APP"
+
+# Optional: ./build.sh package  -> a release archive.
+#
+# --norsrc --noextattr matter. Without them the archive carries AppleDouble
+# entries, and any unzip tool that materialises them as "._" files makes codesign
+# report the app as tampered with on the user's machine.
+if [ "${1:-}" = "package" ]; then
+  ZIP="Valkyrie-$VERSION-AppleSilicon.zip"
+  rm -f "$ZIP"
+  ditto -c -k --keepParent --norsrc --noextattr "$APP" "$ZIP"
+  echo ">>> Packaged $(pwd)/$ZIP"
+  codesign --verify --deep --strict "$APP" && echo ">>> Signature verifies"
+fi
