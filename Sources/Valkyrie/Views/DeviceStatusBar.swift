@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Odin's ID:COM box, modernised.
 ///
-/// This reads the USB tree through IOKit, which needs no privileges — so the
+/// This reads the USB tree through IOKit, which needs no privileges, so the
 /// connection state is live from launch without ever asking for a password.
 struct DeviceStatusBar: View {
     @EnvironmentObject private var monitor: DeviceMonitor
@@ -58,10 +58,10 @@ struct DeviceStatusBar: View {
 
     private var headline: String {
         if let device = monitor.downloadModeDevice {
-            return "\(device.name) — download mode"
+            return "\(device.name) in download mode"
         }
         if let samsung = monitor.samsungDevices.first {
-            return "\(samsung.name) — connected, but not in download mode"
+            return "\(samsung.name) connected, not in download mode"
         }
         return "No Samsung device connected"
     }

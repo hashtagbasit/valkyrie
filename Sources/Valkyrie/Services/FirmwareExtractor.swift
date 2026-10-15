@@ -38,7 +38,7 @@ enum ExtractionError: LocalizedError {
             let tail = detail.split(separator: "\n").suffix(3).joined(separator: "\n")
             return "\(tool) failed on \(file).\n\(tail)"
         case .noPitFound:
-            return "No .pit file found. The partition table normally ships inside the CSC tarball — make sure a CSC or HOME_CSC file is selected."
+            return "No .pit file found. The partition table usually comes inside the CSC file, so make sure CSC or HOME_CSC is selected."
         }
     }
 }
@@ -170,7 +170,7 @@ final class FirmwareExtractor {
 
     /// Makes sure a PIT is present in the work directory.
     ///
-    /// Only the full CSC archive carries the partition table — HOME_CSC omits it. Since
+    /// Only the full CSC archive carries the partition table, HOME_CSC omits it. Since
     /// Valkyrie defaults to HOME_CSC to preserve user data, the table has to be sourced
     /// from whichever archive actually has one. Just the .pit entry is extracted, never
     /// the rest of that archive: CSC also carries images (omr) that HOME_CSC
@@ -208,8 +208,8 @@ final class FirmwareExtractor {
         }
     }
 
-    /// Removes the unpacked images. They're large — a full set is roughly the size
-    /// of the firmware again — so make it easy to reclaim the space.
+    /// Removes the unpacked images. They're large, a full set is roughly the size
+    /// of the firmware again, so make it easy to reclaim the space.
     static func cleanUp(package: FirmwarePackage) throws {
         let work = package.directory.appendingPathComponent(workDirectoryName)
         guard FileManager.default.fileExists(atPath: work.path) else { return }

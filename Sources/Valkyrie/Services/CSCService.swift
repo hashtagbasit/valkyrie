@@ -15,7 +15,7 @@ struct CSCEntry: Identifiable, Hashable {
     /// Samsung encrypts `cscfeature.xml` on current builds, so these cannot be read from
     /// the device. They are inferred from the region the device itself reports, plus a
     /// small override list for codes that are widely reported to differ. Treat them as a
-    /// guide, not a guarantee — which is why the UI labels them as indications.
+    /// guide, not a guarantee, which is why the UI labels them as indications.
     var supportsCallRecording: Bool {
         if CSCEntry.recordingCodes.contains(code) { return true }
         if CSCEntry.noRecordingCodes.contains(code) { return false }
@@ -64,7 +64,7 @@ enum CSCError: LocalizedError {
         case .noDevice:
             return "No phone with USB debugging available. Connect it booted into Android with USB debugging on."
         case .adbMissing:
-            return "adb isn't installed — `brew install --cask android-platform-tools`."
+            return "adb isn't installed. Run `brew install --cask android-platform-tools`."
         case .noDiagnosticPort:
             return "No diagnostic serial port found. On the phone, dial *#0808# and select \"DM + ACM + ADB\", then reconnect."
         case .portOpenFailed(let detail):
@@ -116,7 +116,7 @@ enum CSCService {
         return (code, country)
     }
 
-    /// Every sales code this firmware carries. Only these can be switched to — a code
+    /// Every sales code this firmware carries. Only these can be switched to, a code
     /// that isn't present would have to be flashed in.
     static func availableCodes() async throws -> [String] {
         let listing = try await shell("ls \(carriersPath) 2>/dev/null")
@@ -199,7 +199,7 @@ enum CSCService {
     /// Asks the modem which sales code it is running.
     ///
     /// `AT+PRECONFG=1,0` answers `+PRECONFG:1,<CODE>`. This is a read, so it doubles as a
-    /// safe way to confirm the port really is the modem before anything is written — and
+    /// safe way to confirm the port really is the modem before anything is written, and
     /// as an independent check afterwards, since the Android property and the modem's own
     /// view can disagree until a reboot completes.
     static func readFromModem(port: String) throws -> String? {
@@ -222,7 +222,7 @@ enum CSCService {
     ///
     ///   AT+DUMPCTRL=1,0    without this, SWATD does nothing
     ///   AT+SWATD=0         switch the port into DDEXE mode
-    ///   AT+ACTIVATE=0,0,0  unlocks the proprietary set — MUST answer +ACTIVATE:0,OK
+    ///   AT+ACTIVATE=0,0,0  unlocks the proprietary set, MUST answer +ACTIVATE:0,OK
     ///   AT+SWATD=1         back to ATD
     ///   AT+PRECONFG=2,XXX  the actual write
     ///   AT+PRECONFG=1,0    read back and confirm before rebooting
@@ -230,7 +230,7 @@ enum CSCService {
     /// The unlock is the whole game: without it the modem answers `OK` to the write and
     /// silently discards it, which looks exactly like success. So the write is refused
     /// unless ACTIVATE confirms. `AT+CFUN=1,1` answers `+CFUN=1,1:NA` and does not
-    /// restart the phone — the caller reboots over adb instead.
+    /// restart the phone, the caller reboots over adb instead.
     static func apply(code: String, port: String, log: @escaping (String) -> Void) throws {
         let serial = SerialPort()
         try serial.open(path: port)
@@ -318,7 +318,7 @@ final class SerialPort {
     ///
     /// This modem answers slowly and lags a command behind, so a stale reply left in the
     /// buffer will be read as the *next* command's response. That cost hours of false
-    /// positives — an old "+ACTIVATE:0,OK" read as a fresh success.
+    /// positives, an old "+ACTIVATE:0,OK" read as a fresh success.
     func drain() {
         guard descriptor >= 0 else { return }
         var buffer = [UInt8](repeating: 0, count: 4096)

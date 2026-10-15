@@ -38,7 +38,7 @@ final class ToolsModel: ObservableObject {
     }
 
     /// Pulls the partition table straight off the phone. This is also the safest way
-    /// to prove the USB path works — it reads, and writes nothing.
+    /// to prove the USB path works, it reads, and writes nothing.
     func readFromDevice() async {
         guard !isReading else { return }
 

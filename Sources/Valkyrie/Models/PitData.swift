@@ -46,7 +46,7 @@ struct PitEntry: Identifiable, Hashable {
     ///
     /// Writing any of these turns a firmware update into a factory reset. Factory
     /// (`_fac`) firmware ships `userdata.img` and `persist.img` inside AP, so choosing
-    /// HOME_CSC over CSC does not protect them — the only thing that does is not
+    /// HOME_CSC over CSC does not protect them, the only thing that does is not
     /// flashing them.
     var isUserDataPartition: Bool {
         let name = partitionName.uppercased()
@@ -73,11 +73,11 @@ enum PitError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .tooSmall(let n):
-            return "File is only \(n) bytes — too small to be a PIT."
+            return "File is only \(n) bytes, too small to be a PIT."
         case .badMagic(let m):
             return String(format: "Not a PIT file (magic 0x%08X, expected 0x12349876).", m)
         case .truncated(let expected, let actual):
-            return "PIT is truncated — the header declares \(expected) bytes but the file is \(actual)."
+            return "PIT is cut short. The header says \(expected) bytes but the file is \(actual)."
         }
     }
 }

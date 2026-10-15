@@ -40,7 +40,7 @@ struct CSCView: View {
             Button("Change CSC", role: .destructive) { Task { await model.apply() } }
             Button("Cancel", role: .cancel) { }
         } message: {
-            Text("The phone will reboot. On some models a CSC change also performs a factory reset — back up first.\n\nOnly codes already in this firmware can be applied, and Knox is not affected.")
+            Text("The phone will reboot. On some models changing CSC also does a factory reset, so back up first.\n\nOnly codes already in this firmware can be applied, and Knox is not affected.")
         }
     }
 
@@ -81,7 +81,7 @@ struct CSCView: View {
                     }
                     if let modem = model.modemCode {
                         Label(
-                            modem == code ? "Modem confirms \(modem)" : "Modem reports \(modem) — reboot may be pending",
+                            modem == code ? "Modem confirms \(modem)" : "Modem reports \(modem), it may need a reboot",
                             systemImage: modem == code ? "checkmark.seal.fill" : "exclamationmark.triangle.fill"
                         )
                         .font(.system(size: 10.5))
@@ -143,7 +143,7 @@ struct CSCView: View {
                             StatusPill(text: "already active", color: Theme.success)
                         }
                     } else {
-                        Text("nothing yet — pick one from the list")
+                        Text("nothing yet, pick one from the list")
                             .font(.system(size: 11))
                             .foregroundStyle(.secondary)
                     }
@@ -196,7 +196,7 @@ struct CSCView: View {
                 }
                 .frame(maxHeight: .infinity)
 
-                Text("Capability icons are community indications, not read from the phone — Samsung encrypts the feature files.")
+                Text("The feature icons come from the community, not the phone, because Samsung encrypts the feature files.")
                     .font(.system(size: 9.5))
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -218,7 +218,7 @@ struct CSCView: View {
                     .frame(width: 42, alignment: .leading)
                     .foregroundStyle(isCurrent ? Theme.success : (isSelected ? Theme.accent : .primary))
 
-                Text(entry.country ?? "—")
+                Text(entry.country ?? "-")
                     .font(.system(size: 11))
                     .lineLimit(1)
 

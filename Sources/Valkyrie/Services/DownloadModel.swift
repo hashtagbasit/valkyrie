@@ -118,7 +118,7 @@ final class DownloadModel: ObservableObject {
         guard let identity = await DeviceIdentity.detect() else {
             errorMessage = DeviceIdentity.isAvailable
                 ? "No phone with USB debugging available. Connect it booted into Android, with USB debugging on and this Mac authorised."
-                : "adb isn't installed — `brew install --cask android-platform-tools` to detect automatically."
+                : "adb isn't installed. Run `brew install --cask android-platform-tools` to detect the phone automatically."
             return
         }
         model = identity.model
@@ -263,7 +263,7 @@ final class DownloadModel: ObservableObject {
     /// Downloads with automatic resume across dropped connections.
     ///
     /// A 20GB transfer over half an hour will lose its connection sooner or later, and
-    /// the session almost always dies with it — a resumed range request carrying stale
+    /// the session almost always dies with it, a resumed range request carrying stale
     /// credentials comes back 401. So each retry re-authenticates from scratch and then
     /// picks up from whatever is already on disk.
     private func downloadWithRetry(info: FusBinaryInfo, to destination: URL) async throws {
@@ -312,7 +312,7 @@ final class DownloadModel: ObservableObject {
                 let percent = current.byteSize > 0
                     ? Int(Double(done) / Double(current.byteSize) * 100)
                     : 0
-                statusText = "Connection lost at \(percent)% — reconnecting (\(attempt)/\(maxAttempts))…"
+                statusText = "Connection lost at \(percent)%, reconnecting (\(attempt)/\(maxAttempts))…"
                 bytesPerSecond = 0
 
                 // Back off, but not so far that a long stall wastes the whole window.
@@ -410,7 +410,7 @@ final class DownloadModel: ObservableObject {
         finishedURL = url
         phase = .finished
         CompletionAlert.signal(success: true)
-        statusText = "Ready — \(url.lastPathComponent)"
+        statusText = "Ready: \(url.lastPathComponent)"
     }
 
     func revealInFinder() {

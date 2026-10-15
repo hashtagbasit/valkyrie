@@ -18,7 +18,7 @@ struct USBDevice: Identifiable, Hashable {
 }
 
 /// Reads the USB device tree through IOKit. This needs no privileges, which is why
-/// Valkyrie can show live connection state without ever asking for a password —
+/// Valkyrie can show live connection state without ever asking for a password,
 /// only the actual flash needs root.
 enum USBScanner {
     static let samsungVendorID = 0x04E8

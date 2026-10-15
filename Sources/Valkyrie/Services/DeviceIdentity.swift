@@ -39,7 +39,7 @@ enum DeviceIdentity {
         return value
     }
 
-    /// Returns nil when no debuggable device is attached — download mode has no adb,
+    /// Returns nil when no debuggable device is attached, download mode has no adb,
     /// so this only works before the phone is put into it.
     static func detect() async -> Identity? {
         guard let adb = locateADB() else { return nil }

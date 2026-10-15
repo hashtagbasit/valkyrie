@@ -18,7 +18,12 @@ jobs:
         run: swift --version
 
       - name: Build app bundle
-        run: ./build.sh
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            VERSION="${GITHUB_REF_NAME#v}" ./build.sh package
+          else
+            ./build.sh
+          fi
 
       - name: Verify bundle
         run: |
@@ -37,4 +42,4 @@ jobs:
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: Valkyrie.zip
+          files: Valkyrie-*-AppleSilicon.zip

@@ -2,8 +2,8 @@ import Foundation
 
 /// Reassembles a pty byte stream into display lines.
 ///
-/// Heimdall repaints its percentage counter with backspaces — it prints `0%`, then
-/// `\b\b45%` — so naively appending chunks produces `0%1%2%3%45%`. This applies
+/// Heimdall repaints its percentage counter with backspaces, it prints `0%`, then
+/// `\b\b45%`, so naively appending chunks produces `0%1%2%3%45%`. This applies
 /// backspace and carriage-return semantics the way a terminal would, which gives
 /// both a clean log and an accurate reading of the current percentage.
 final class TerminalBuffer {
@@ -109,7 +109,7 @@ struct FlashProgressParser {
 /// Filters the underlying CLI's banner out of the displayed log.
 ///
 /// The flash engine prints its name, version and a copyright block on every run.
-/// Valkyrie presents its own interface, so those lines are dropped from the log —
+/// Valkyrie presents its own interface, so those lines are dropped from the log,
 /// progress parsing still sees the complete stream, only the display is filtered.
 enum EngineOutputFilter {
     private static let suppressedPrefixes = [

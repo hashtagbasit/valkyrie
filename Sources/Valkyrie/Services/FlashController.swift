@@ -82,7 +82,7 @@ final class FlashController: ObservableObject {
         return enabledPlan.filter { $0.pitEntry.isUserDataPartition }
     }
 
-    /// Derived from the actual plan, not from the CSC choice — factory firmware carries
+    /// Derived from the actual plan, not from the CSC choice, factory firmware carries
     /// `userdata` in AP, so the CSC variant says nothing about whether data survives.
     var wipesUserData: Bool {
         return !destructivePartitions.isEmpty
@@ -164,16 +164,16 @@ final class FlashController: ObservableObject {
                                 guard total > 0 else { return }
                                 let percent = Int(Double(done) / Double(total) * 100)
                                 Task { @MainActor in
-                                    self?.statusText = "Verifying \(url.lastPathComponent) — \(percent)%"
+                                    self?.statusText = "Verifying \(url.lastPathComponent): \(percent)%"
                                 }
                             }
                         )
                     }.value
-                    append("  checksum OK — \(archive.filename)", kind: .success)
+                    append("  checksum OK: \(archive.filename)", kind: .success)
                 }
             }
 
-            append("Unpacking firmware — this takes a few minutes for a full set.", kind: .command)
+            append("Unpacking firmware, this takes a few minutes for a full set.", kind: .command)
             let output = try await extractor.extract(package: package, slots: selectedSlots) { [weak self] message in
                 Task { @MainActor in
                     self?.statusText = message
@@ -187,7 +187,7 @@ final class FlashController: ObservableObject {
 
             guard !plan.isEmpty else {
                 state = .failed("No image matched any partition in the PIT.")
-                append("Nothing to flash — no extracted image matched a PIT entry.", kind: .error)
+                append("Nothing to flash. None of the extracted images matched a PIT entry.", kind: .error)
                 return
             }
 
@@ -196,7 +196,7 @@ final class FlashController: ObservableObject {
             append("Mapped \(plan.count) partitions from \(output.pitURL.lastPathComponent)", kind: .success)
             for entry in plan {
                 let mark = entry.isEnabled ? " " : "·"
-                let flag = entry.pitEntry.isUserDataPartition ? "   [USER DATA — deselected]" : ""
+                let flag = entry.pitEntry.isUserDataPartition ? "   [USER DATA, deselected]" : ""
                 append("\(mark) \(entry.partitionName) ← \(entry.image.filename)  (\(entry.image.formattedSize))\(flag)", kind: entry.pitEntry.isUserDataPartition ? .error : .info)
             }
             let skipped = plan.filter { !$0.isEnabled }
@@ -215,7 +215,7 @@ final class FlashController: ObservableObject {
     func flash() async {
         guard state == .ready, !enabledPlan.isEmpty else { return }
         guard let heimdall = FlashController.locateHeimdall() else {
-            state = .failed("Flash engine not found. See the README for setup — it belongs in /opt/homebrew/bin.")
+            state = .failed("Flash engine not found. It ships inside the app, so try downloading Valkyrie again.")
             return
         }
 
@@ -272,7 +272,7 @@ final class FlashController: ObservableObject {
                     self.currentPercent = parser.currentPercent
                     self.completedPartitions = parser.completedPartitions
                     if let partition = parser.currentPartition {
-                        self.statusText = "Writing \(partition) — \(parser.currentPercent)%"
+                        self.statusText = "Writing \(partition): \(parser.currentPercent)%"
                     }
                 }
             }
@@ -284,8 +284,8 @@ final class FlashController: ObservableObject {
                 state = .succeeded
                 currentPartition = nil
                 statusText = options.autoReboot
-                    ? "Flash complete — the phone is rebooting"
-                    : "Flash complete — the phone is still in download mode"
+                    ? "Flash done, the phone is rebooting"
+                    : "Flash done, the phone is still in download mode"
                 append("Flash completed successfully.", kind: .success)
                 CompletionAlert.signal(success: true)
                 if options.autoReboot {
@@ -308,7 +308,7 @@ final class FlashController: ObservableObject {
 
     func cancel() {
         runner?.cancel()
-        append("Cancel requested — interrupting a flash mid-write can leave the phone unbootable.", kind: .error)
+        append("Cancelling. Stopping a flash halfway through can leave the phone unable to boot.", kind: .error)
     }
 
     func reset() {

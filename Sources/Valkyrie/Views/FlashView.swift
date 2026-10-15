@@ -164,7 +164,7 @@ struct FlashView: View {
             VStack(alignment: .leading, spacing: 7) {
                 optionToggle("Auto-reboot", "Restart the phone when the flash finishes",
                              isOn: $controller.options.autoReboot)
-                optionToggle("Re-partition", "Rewrite the partition table from the PIT — only for recovery",
+                optionToggle("Re-partition", "Rewrite the partition table from the PIT, only for recovery",
                              isOn: $controller.options.repartition)
                 optionToggle("T-Flash", "Write to the inserted SD card instead of internal storage",
                              isOn: $controller.options.tFlash)
@@ -172,7 +172,7 @@ struct FlashView: View {
                              isOn: $controller.options.skipSizeCheck)
                 optionToggle("Resume session", "Continue a session left open by a previous no-reboot flash",
                              isOn: $controller.options.resume)
-                optionToggle("Verify checksums", "Check each file's appended MD5 before flashing — catches a corrupt download",
+                optionToggle("Verify checksums", "Check each file's MD5 before flashing to catch a broken download",
                              isOn: $controller.options.verifyChecksums)
                 optionToggle("Verbose log", "Full transfer output, including USB detail",
                              isOn: $controller.options.verbose)
@@ -293,7 +293,7 @@ struct FlashView: View {
             subtitle: controller.plan.isEmpty
                 ? "Unpack a firmware set to see the mapping"
                 : (controller.wipesUserData
-                   ? "\(controller.enabledPlan.count) selected — including partitions that erase your data"
+                   ? "\(controller.enabledPlan.count) selected, including partitions that erase your data"
                    : "\(controller.enabledPlan.count) of \(controller.plan.count) selected · data partitions excluded")
         ) {
             if controller.plan.isEmpty {
@@ -312,7 +312,7 @@ struct FlashView: View {
                         }
                     }
                     .frame(maxHeight: 200)
-                    // Follow the write, the same way the log follows its output —
+                    // Follow the write, the same way the log follows its output,
                     // a 49-partition flash otherwise scrolls out of sight immediately.
                     .onChange(of: controller.currentPartition) { partition in
                         guard let partition else { return }
@@ -411,7 +411,7 @@ struct FlashView: View {
                   let url = URL(dataRepresentation: data, relativeTo: nil) else { return }
             var isDirectory: ObjCBool = false
             FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory)
-            // Dropping one of the tarballs is a natural mistake — take its folder.
+            // Dropping one of the tarballs is a natural mistake, take its folder.
             let folder = isDirectory.boolValue ? url : url.deletingLastPathComponent()
             Task { @MainActor in controller.loadPackage(at: folder) }
         }

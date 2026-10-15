@@ -47,7 +47,7 @@ struct AboutView: View {
                             .foregroundStyle(.secondary)
                     }
 
-                    Text("Flash Samsung Galaxy firmware natively on Apple Silicon — no Windows, no virtual machine, no Odin.")
+                    Text("Flash Samsung Galaxy firmware on your Apple Silicon Mac without Windows or a virtual machine.")
                         .font(.system(size: 12.5))
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -81,7 +81,7 @@ struct AboutView: View {
             subtitle: "Built and maintained by one person, in spare time, for free"
         ) {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Valkyrie is a solo, unfunded project. There's no company behind it and nothing is sold — every device it supports came out of someone's evening. If it saved you buying a Windows licence, rescued a phone, or spared you a paywalled firmware download, a coffee genuinely helps.")
+                Text("I make Valkyrie on my own in my spare time and give it away for free. There's no company behind it and nothing to buy. If it saved you a Windows licence, rescued a phone or got you firmware you'd otherwise pay for, a coffee really helps.")
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -108,7 +108,7 @@ struct AboutView: View {
 
                 HStack(spacing: 16) {
                     linkRow(symbol: "cup.and.saucer", label: "ko-fi.com/aimalb", url: kofiURL)
-                    linkRow(symbol: "creditcard", label: "PayPal — Basit2000", url: paypalURL)
+                    linkRow(symbol: "creditcard", label: "PayPal: Basit2000", url: paypalURL)
                 }
                 .padding(.top, 2)
             }
@@ -134,8 +134,8 @@ struct AboutView: View {
     private var projectCard: some View {
         Card(title: "What it does", subtitle: "Everything Odin does on Windows, and a few things it doesn't") {
             VStack(alignment: .leading, spacing: 9) {
-                feature("bolt.fill", "Flash", "Drag in a firmware folder. Checksums verified, partitions mapped from the PIT, data partitions excluded unless you ask.")
-                feature("arrow.down.circle.fill", "Download", "Straight from Samsung's servers — resumable, CRC-checked, decrypted and unpacked automatically. No mirrors, no paywalls.")
+                feature("bolt.fill", "Flash", "Drag in a firmware folder. It checks the MD5s, maps partitions from the PIT and leaves your data partitions alone unless you tick them.")
+                feature("arrow.down.circle.fill", "Download", "Downloads straight from Samsung, resumes if the connection drops, checks the CRC, then decrypts and unpacks it for you.")
                 feature("globe", "CSC", "Change the sales code over the modem, without root, without tripping Knox, and without wiping your data.")
                 feature("wrench.and.screwdriver.fill", "Tools", "Inspect the partition table, read it off the phone, and see exactly what's on the USB bus.")
             }
@@ -166,16 +166,16 @@ struct AboutView: View {
     private var creditsCard: some View {
         Card(title: "Standing on other people's work", subtitle: "None of this starts from nothing") {
             VStack(alignment: .leading, spacing: 7) {
-                credit("Bundled", "The flash engine, lz4 and libusb ship inside this app — nothing to install.")
-                credit("Heimdall", "Benjamin Dobell, Glass Echidna — the original Odin-protocol implementation. MIT.")
+                credit("Bundled", "The flash engine, lz4 and libusb are bundled in the app, so there's nothing extra to install.")
+                credit("Heimdall", "Benjamin Dobell, Glass Echidna. The original Odin protocol implementation. MIT.")
                 credit("Maintained fork", "Henrik Grimler, who kept it alive for years.")
-                credit("Apple Silicon fix", "aljosasavic/heimdall-apple-silicon — clears the stalled USB pipe that made large partitions fail on macOS.")
+                credit("Apple Silicon fix", "aljosasavic/heimdall-apple-silicon. Fixes the stalled USB transfer that made big partitions fail on macOS.")
                 credit("Firmware protocol", "Samloader and Bifrost, for working out how Samsung's servers actually talk.")
                 credit("libusb / lz4", "LGPL-2.1 and BSD-2-Clause respectively, bundled unmodified.")
 
                 Divider().padding(.vertical, 2)
 
-                Text("Valkyrie is MIT licensed. Flashing firmware can wipe data and, if interrupted, brick a device — use firmware built for your exact model and proceed at your own risk.")
+                Text("Valkyrie is MIT licensed. Flashing can wipe data and can brick a phone if it gets interrupted, so use firmware for your exact model. Use at your own risk.")
                     .font(.system(size: 10.5))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

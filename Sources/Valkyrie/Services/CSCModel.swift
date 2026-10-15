@@ -33,7 +33,7 @@ final class CSCModel: ObservableObject {
     var blockedReason: String? {
         if isApplying { return "Applying…" }
         guard selectedCode != nil else { return "Pick a CSC from the list first." }
-        guard selectedPort != nil else { return "No diagnostic port — connect the phone with USB debugging on." }
+        guard selectedPort != nil else { return "No diagnostic port. Connect the phone with USB debugging on." }
         if selectedCode == currentCode { return "That CSC is already active." }
         return nil
     }
@@ -97,19 +97,19 @@ final class CSCModel: ObservableObject {
     /// Restarts the phone and confirms the new code actually took.
     ///
     /// The modem stages the change but does not apply it, and `AT+CFUN=1,1` answers
-    /// `+CFUN=1,1:NA` without restarting anything — so the reboot has to come from adb.
+    /// `+CFUN=1,1:NA` without restarting anything, so the reboot has to come from adb.
     /// If that isn't possible the user is told to do it by hand rather than being left
     /// with a staged change and a success message.
     private func rebootAndVerify(expecting code: String) async {
         guard let adb = DeviceIdentity.locateADB() else {
-            append("Change is staged, but adb isn't available to restart the phone. Reboot it yourself — \(code) applies on boot.", kind: .error)
+            append("Change is staged, but adb isn't available to restart the phone. Reboot it yourself and \(code) applies on boot.", kind: .error)
             return
         }
 
         append("Restarting the phone to apply \(code)…", kind: .info)
         let result = try? await CommandRunner().run(executable: adb, arguments: ["reboot"])
         guard result?.succeeded == true else {
-            append("Couldn't restart the phone automatically. Reboot it yourself — \(code) is staged and applies on boot.", kind: .error)
+            append("Couldn't restart the phone automatically. Reboot it yourself, \(code) is staged and applies on boot.", kind: .error)
             return
         }
 
@@ -129,7 +129,7 @@ final class CSCModel: ObservableObject {
             let value = applied?.output.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             if value.uppercased() == code.uppercased() {
                 currentCode = value
-                append("Confirmed — the phone is now on \(value), user data intact.", kind: .success)
+                append("Done, the phone is now on \(value) and your data is still there.", kind: .success)
             } else {
                 append("Phone restarted but reports \(value.isEmpty ? "nothing" : value) rather than \(code).", kind: .error)
             }

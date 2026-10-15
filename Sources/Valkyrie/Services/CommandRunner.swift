@@ -45,7 +45,7 @@ final class CommandRunner: @unchecked Sendable {
     /// it to sudo, which then blocks forever waiting on the terminal. `sudo -A` sidesteps
     /// stdin and the tty completely by asking this helper instead.
     ///
-    /// The script itself holds no secret — it only echoes an environment variable that
+    /// The script itself holds no secret, it only echoes an environment variable that
     /// is set per invocation, so nothing sensitive is written to disk.
     private static func askpassHelper() throws -> URL {
         let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -85,7 +85,7 @@ final class CommandRunner: @unchecked Sendable {
         // Only allocate a pty when the caller wants live output.
         //
         // `script` makes the child believe it is on a terminal, which is what keeps the
-        // flash's progress flowing — but it also echoes an EOF marker ("^D" plus two
+        // flash's progress flowing, but it also echoes an EOF marker ("^D" plus two
         // backspaces) into the stream. TerminalBuffer resolves those for display, yet any
         // caller capturing output as *data* would be handed the junk: it is what turned a
         // detected model into "^D<BS><BS>SM-F956B" and made Samsung reject the lookup.
@@ -186,7 +186,7 @@ final class CommandRunner: @unchecked Sendable {
     }
 
     /// Strips the EOF marker a pty echoes back. Backspaces and carriage returns are
-    /// preserved — TerminalBuffer applies their semantics to rebuild display lines.
+    /// preserved, TerminalBuffer applies their semantics to rebuild display lines.
     static func sanitize(_ text: String) -> String {
         return text
             .replacingOccurrences(of: "\r\n", with: "\n")
@@ -201,7 +201,7 @@ final class CommandRunner: @unchecked Sendable {
 /// An earlier design validated the password once with `sudo -v` and then ran everything
 /// with `sudo -n`. That cannot work here: sudo's credential cache is scoped per
 /// terminal ("one time stamp record is used for each terminal"), and every command runs
-/// under its own freshly allocated pty — so the warmed credential was never visible to
+/// under its own freshly allocated pty, so the warmed credential was never visible to
 /// the command that needed it, and `sudo -n`, which by design cannot prompt, failed
 /// immediately.
 ///

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Build Valkyrie and assemble a runnable .app bundle.
 #
-# Needs only the Xcode Command Line Tools — no full Xcode. Swift Package Manager
+# Needs only the Xcode Command Line Tools, no full Xcode. Swift Package Manager
 # produces the executable and this script wraps it in the bundle macOS expects.
 set -e
 cd "$(dirname "$0")"
@@ -57,11 +57,11 @@ PLIST
 
 # Strip extended attributes before signing. They travel into a zip as AppleDouble
 # "._" files, which some unzip tools materialise and codesign then counts as
-# unsealed additions — the app looks tampered with on the user's machine.
+# unsealed additions, the app looks tampered with on the user's machine.
 xattr -cr "$APP" 2>/dev/null || true
 
 # Ad-hoc signature so macOS will launch it locally without a developer certificate.
-# The nested binaries are signed first — signing the bundle alone leaves them invalid.
+# The nested binaries are signed first, signing the bundle alone leaves them invalid.
 for nested in "$CONTENTS/Resources/bin/"*; do
   [ -e "$nested" ] && codesign --force --sign - "$nested" 2>/dev/null
 done

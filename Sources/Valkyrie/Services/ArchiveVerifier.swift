@@ -10,14 +10,14 @@ enum ArchiveVerificationError: LocalizedError {
         case .noChecksum(let file):
             return "\(file) has no appended checksum to verify against."
         case .mismatch(let file, let expected, let actual):
-            return "\(file) is corrupt — its checksum should be \(expected.prefix(12))… but the file computes to \(actual.prefix(12))…. Download the firmware again rather than flashing it."
+            return "\(file) is broken. Its checksum should be \(expected.prefix(12))… but the file gives \(actual.prefix(12))…. Download the firmware again, don't flash it."
         }
     }
 }
 
 /// Verifies the MD5 Samsung appends to every `.tar.md5`.
 ///
-/// The file is an ordinary tar with `md5sum` output — `<hash>␠␠<name>\n` — glued onto the
+/// The file is an ordinary tar with `md5sum` output, `<hash>␠␠<name>\n`, glued onto the
 /// end, and the hash covers everything before that line. Odin checks this; skipping it
 /// means a tarball corrupted in transit reaches the phone unnoticed, which is the kind of
 /// silent failure that bricks a device.

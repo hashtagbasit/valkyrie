@@ -96,7 +96,7 @@ struct ToolsView: View {
                     Spacer()
                 }
 
-                Text("Reading the PIT writes nothing to the phone — it's the safest way to confirm the USB path works before a real flash.")
+                Text("Reading the PIT doesn't write anything to the phone, so it's a safe way to check USB works before a real flash.")
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
 
@@ -140,7 +140,7 @@ struct ToolsView: View {
                                 Text(entry.partitionName)
                                     .frame(width: 150, alignment: .leading)
                                     .fontWeight(entry.isFlashable ? .medium : .regular)
-                                Text(entry.isFlashable ? entry.flashFilename : "—")
+                                Text(entry.isFlashable ? entry.flashFilename : "-")
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .foregroundStyle(entry.isFlashable ? .primary : .secondary)
                                     .lineLimit(1)

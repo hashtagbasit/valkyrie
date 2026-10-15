@@ -33,7 +33,7 @@ struct DownloadView: View {
     private var lookupCard: some View {
         Card(
             title: "Find firmware",
-            subtitle: "Queries Samsung's own version index — the endpoint phones use for OTA checks"
+            subtitle: "Checks Samsung's own version list, the same one phones use for updates"
         ) {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 10) {

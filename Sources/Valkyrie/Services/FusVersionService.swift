@@ -49,8 +49,8 @@ enum FusVersionError: LocalizedError {
 
 /// Reads Samsung's public firmware version index.
 ///
-/// This endpoint needs no authentication at all — it's the same one phones poll for
-/// OTA checks — so version lookup always works even when the download servers are
+/// This endpoint needs no authentication at all, it's the same one phones poll for
+/// OTA checks, so version lookup always works even when the download servers are
 /// gated. It returns the current build plus the full upgrade history for a model.
 enum FusVersionService {
     static func versionURL(model: String, region: String) -> URL? {

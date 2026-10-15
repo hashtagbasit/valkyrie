@@ -2,7 +2,7 @@ import Foundation
 
 /// Command line tools shipped inside the app bundle.
 ///
-/// Valkyrie drives two external binaries — the flash engine and the lz4 decompressor.
+/// Valkyrie drives two external binaries, the flash engine and the lz4 decompressor.
 /// Asking people to build those themselves before they can use a GUI defeats the point,
 /// so both travel in `Contents/Resources/bin` along with the one library the engine
 /// needs. The engine is relinked at build time to load that library from beside itself

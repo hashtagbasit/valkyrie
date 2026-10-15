@@ -25,10 +25,10 @@ enum FirmwareSlot: String, CaseIterable, Identifiable {
     var detail: String {
         switch self {
         case .bootloader: return "Boot chain and secure world"
-        case .ap: return "Android system — factory builds also carry userdata"
+        case .ap: return "Android system (factory builds also include userdata)"
         case .modem: return "Baseband / radio"
-        case .csc: return "Region config — the wiping variant"
-        case .homeCSC: return "Region config — the non-wiping variant"
+        case .csc: return "Region config, wipes data"
+        case .homeCSC: return "Region config, keeps data"
         case .userdata: return "Optional data image"
         }
     }
@@ -105,7 +105,7 @@ struct FirmwarePackage {
     /// The model code is the leading letters+digits of the build string (e.g. F956B).
     var modelCode: String? {
         guard let build = buildVersion else { return nil }
-        // Build strings look like F956BXXS4DZH5 — the model runs up to the "XX"/"OXM" marker.
+        // Build strings look like F956BXXS4DZH5, the model runs up to the "XX"/"OXM" marker.
         if let range = build.range(of: "XX") ?? build.range(of: "OXM") {
             return String(build[build.startIndex..<range.lowerBound])
         }

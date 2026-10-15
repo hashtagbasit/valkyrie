@@ -20,7 +20,7 @@ enum FusError: LocalizedError {
             return "Samsung's server didn't issue a session nonce."
         case .server(let status):
             switch status {
-            case "408": return "Samsung rejected the request as unauthorised — the session expired. Try again."
+            case "408": return "Samsung rejected the request because the session expired. Try again."
             case "401": return "Samsung rejected the authentication."
             default: return "Samsung's server returned status \(status)."
             }
@@ -31,9 +31,9 @@ enum FusError: LocalizedError {
         case .decryptionFailed(let code):
             return "Decryption failed (CommonCrypto status \(code))."
         case .sizeMismatch(let expected, let actual):
-            return "Download is incomplete — expected \(expected) bytes but have \(actual)."
+            return "Download isn't complete. Expected \(expected) bytes but only have \(actual)."
         case .checksumMismatch(let expected, let actual):
-            return "The download is corrupt — Samsung's checksum is \(expected) but the file computes to \(actual). Delete it and download again rather than flashing it."
+            return "The download is broken. Samsung's checksum is \(expected) but the file gives \(actual). Delete it and download again, don't flash it."
         case .unpackFailed(let detail):
             return "Couldn't unpack the archive: \(detail)"
         }
@@ -52,7 +52,7 @@ struct FusBinaryInfo {
     let region: String
 
     var isEncrypted: Bool { fileName.hasSuffix(".enc4") || fileName.hasSuffix(".enc2") }
-    /// The archive without its .zip suffix — used as the unpacked folder name.
+    /// The archive without its .zip suffix, used as the unpacked folder name.
     var folderName: String {
         var name = decryptedName
         if name.hasSuffix(".zip") { name.removeLast(4) }
@@ -297,14 +297,14 @@ struct Crc32 {
 
 /// AES-128-ECB decryption for `.enc4` firmware.
 ///
-/// ECB has no chaining, so the file can be decrypted block-aligned chunk by chunk —
+/// ECB has no chaining, so the file can be decrypted block-aligned chunk by chunk,
 /// which is what makes streaming a 20GB archive practical without holding it in memory.
 enum FirmwareDecryptor {
     static let chunkSize = 4 * 1024 * 1024
 
     /// Returns the CRC-32 of the *encrypted* input, computed in the same pass.
     /// Samsung supplies that checksum with the binary information, and verifying it
-    /// this way costs nothing — the bytes are already being read.
+    /// this way costs nothing, the bytes are already being read.
     @discardableResult
     static func decrypt(
         source: URL,

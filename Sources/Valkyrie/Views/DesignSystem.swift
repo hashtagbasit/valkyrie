@@ -63,7 +63,7 @@ enum Theme {
     )
 
     /// The log is a terminal well, so it stays dark in both appearances and its text
-    /// colours are fixed — an adaptive palette would resolve to dark-on-dark in Light.
+    /// colours are fixed, an adaptive palette would resolve to dark-on-dark in Light.
     static let consoleBackground = adaptive(
         light: NSColor(calibratedWhite: 0.13, alpha: 1.0),
         dark: NSColor(calibratedWhite: 0.06, alpha: 1.0)
@@ -78,7 +78,7 @@ enum Theme {
 /// Stand-in for `@State`.
 ///
 /// In the macOS 27 SDK `@State` is implemented as a macro, and that macro's plugin
-/// ships only inside Xcode — so it cannot expand under Command Line Tools alone.
+/// ships only inside Xcode, so it cannot expand under Command Line Tools alone.
 /// `@StateObject` predates macros and works fine, so view-local state lives in one
 /// of these holders instead. Swap back to `@State` if this ever builds under Xcode.
 final class Local<Value>: ObservableObject {
@@ -97,7 +97,7 @@ final class Local<Value>: ObservableObject {
 /// Makes the window itself translucent.
 ///
 /// Liquid Glass refracts whatever sits behind it. Against a flat opaque window it has
-/// nothing to work with and renders as plain grey — which is exactly what "the glass
+/// nothing to work with and renders as plain grey, which is exactly what "the glass
 /// doesn't work" looks like. Clearing the window background lets the desktop through so
 /// the effect is actually visible.
 struct WindowConfigurator: NSViewRepresentable {
@@ -231,7 +231,7 @@ struct Card<Content: View>: View {
     }
 }
 
-/// A small status pill — used for device state and per-partition outcomes.
+/// A small status pill, used for device state and per-partition outcomes.
 struct StatusPill: View {
     var text: String
     var color: Color
