@@ -339,10 +339,38 @@ final class DownloadModel: ObservableObject {
     /// handles Zip64 correctly where the stock unzip does not.
     private func unpack(archive: URL, into folder: URL) async throws {
         try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+
+        // ditto prints nothing while it works, so progress comes from watching the
+        // output folder grow against the archive's uncompressed total.
+        let total = await DownloadModel.uncompressedSize(of: archive)
+        bytesReceived = 0
+        totalBytes = total
+        bytesPerSecond = 0
+        let monitor = Task { @MainActor [weak self] in
+            var last: (bytes: Int64, time: Date)?
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                guard let self, !Task.isCancelled else { return }
+                let written = await Task.detached { DownloadModel.folderSize(folder) }.value
+                let now = Date()
+                if let last, now.timeIntervalSince(last.time) > 0 {
+                    let rate = Double(written - last.bytes) / now.timeIntervalSince(last.time)
+                    // Smooth it; per-second samples jump around on a spinning disk.
+                    self.bytesPerSecond = self.bytesPerSecond > 0 ? self.bytesPerSecond * 0.7 + max(0, rate) * 0.3 : max(0, rate)
+                }
+                last = (written, now)
+                self.bytesReceived = total > 0 ? min(written, total) : written
+            }
+        }
+        defer { monitor.cancel() }
+
         let result = try await CommandRunner().run(
             executable: "/usr/bin/ditto",
             arguments: ["-x", "-k", archive.path, folder.path]
         )
+        monitor.cancel()
+        bytesReceived = totalBytes
+        bytesPerSecond = 0
         guard result.succeeded else {
             let tail = result.output
                 .split(separator: "\n")
@@ -352,6 +380,30 @@ final class DownloadModel: ObservableObject {
                 .joined(separator: " · ")
             throw FusError.unpackFailed(tail.isEmpty ? "ditto exited with \(result.exitCode)" : tail)
         }
+    }
+
+    /// Total uncompressed size from the zip's central directory. zipinfo reads Zip64
+    /// totals fine (it's only extraction where the stock unzip falls over).
+    private static func uncompressedSize(of archive: URL) async -> Int64 {
+        guard let result = try? await CommandRunner().run(
+            executable: "/usr/bin/zipinfo",
+            arguments: ["-t", archive.path]
+        ), result.succeeded else { return 0 }
+        // "5 files, 31526810159 bytes uncompressed, 28837723840 bytes compressed: 8.5%"
+        let words = result.output.split(whereSeparator: { $0 == " " || $0 == "," })
+        guard let index = words.firstIndex(of: "uncompressed"), index >= 2 else { return 0 }
+        return Int64(words[index - 2]) ?? 0
+    }
+
+    private nonisolated static func folderSize(_ folder: URL) -> Int64 {
+        guard let walker = FileManager.default.enumerator(
+            at: folder, includingPropertiesForKeys: [.fileSizeKey], options: []
+        ) else { return 0 }
+        var sum: Int64 = 0
+        for case let file as URL in walker {
+            sum += Int64((try? file.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0)
+        }
+        return sum
     }
 
     private func finish(at url: URL) {

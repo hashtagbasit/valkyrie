@@ -328,35 +328,41 @@ enum FirmwareDecryptor {
 
         while true {
             if isCancelled() { return crc.checksum }
-            let chunk = input.readData(ofLength: chunkSize)
-            guard !chunk.isEmpty else { break }
+            // readData hands back autoreleased buffers; without a pool per chunk they
+            // pile up until the loop ends, i.e. the whole archive ends up in memory.
+            let finished = try autoreleasepool { () throws -> Bool in
+                let chunk = input.readData(ofLength: chunkSize)
+                guard !chunk.isEmpty else { return true }
 
-            chunk.withUnsafeBytes { crc.update($0) }
+                chunk.withUnsafeBytes { crc.update($0) }
 
-            var written = 0
-            let status = chunk.withUnsafeBytes { raw -> CCCryptorStatus in
-                return CCCrypt(
-                    CCOperation(kCCDecrypt),
-                    CCAlgorithm(kCCAlgorithmAES),
-                    CCOptions(kCCOptionECBMode),
-                    key, key.count,
-                    nil,
-                    raw.baseAddress, chunk.count,
-                    &buffer, buffer.count,
-                    &written
-                )
+                var written = 0
+                let status = chunk.withUnsafeBytes { raw -> CCCryptorStatus in
+                    return CCCrypt(
+                        CCOperation(kCCDecrypt),
+                        CCAlgorithm(kCCAlgorithmAES),
+                        CCOptions(kCCOptionECBMode),
+                        key, key.count,
+                        nil,
+                        raw.baseAddress, chunk.count,
+                        &buffer, buffer.count,
+                        &written
+                    )
+                }
+                guard status == kCCSuccess else { throw FusError.decryptionFailed(status) }
+
+                processed += Int64(chunk.count)
+                var slice = Array(buffer[0..<written])
+
+                // The final block carries PKCS#7 padding.
+                if processed >= totalBytes, let pad = slice.last, pad >= 1, pad <= 16, slice.count >= Int(pad) {
+                    slice.removeLast(Int(pad))
+                }
+                output.write(Data(slice))
+                progress(processed, totalBytes)
+                return false
             }
-            guard status == kCCSuccess else { throw FusError.decryptionFailed(status) }
-
-            processed += Int64(chunk.count)
-            var slice = Array(buffer[0..<written])
-
-            // The final block carries PKCS#7 padding.
-            if processed >= totalBytes, let pad = slice.last, pad >= 1, pad <= 16, slice.count >= Int(pad) {
-                slice.removeLast(Int(pad))
-            }
-            output.write(Data(slice))
-            progress(processed, totalBytes)
+            if finished { break }
         }
         return crc.checksum
     }

@@ -88,10 +88,14 @@ enum ArchiveVerifier {
         while remaining > 0 {
             if isCancelled() { return false }
             let wanted = Int(min(Int64(chunkSize), remaining))
-            let chunk = handle.readData(ofLength: wanted)
-            guard !chunk.isEmpty else { break }
-            hasher.update(data: chunk)
-            remaining -= Int64(chunk.count)
+            // Same autoreleased-buffer pile-up as the decryptor: drain per chunk.
+            let read = autoreleasepool { () -> Int in
+                let chunk = handle.readData(ofLength: wanted)
+                hasher.update(data: chunk)
+                return chunk.count
+            }
+            guard read > 0 else { break }
+            remaining -= Int64(read)
             progress(total - remaining, total)
         }
 
